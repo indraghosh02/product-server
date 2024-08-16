@@ -29,22 +29,64 @@ async function run() {
     const productCollection = client.db('productDb').collection('allProducts');
 
     // Endpoint to get all products with sorting options
+    // app.get('/allProducts', async (req, res) => {
+    //   const sortOption = req.query.sort;
+
+    //   let sortQuery = {};
+    //   if (sortOption === 'priceLowToHigh') {
+    //     sortQuery = { price: 1 };
+    //   } else if (sortOption === 'priceHighToLow') {
+    //     sortQuery = { price: -1 };
+    //   } else if (sortOption === 'newestFirst') {
+    //     sortQuery = { product_creation_date: -1 };
+    //   }
+
+    //   const cursor = productCollection.find().sort(sortQuery);
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // });
+
     app.get('/allProducts', async (req, res) => {
-      const sortOption = req.query.sort;
-
-      let sortQuery = {};
-      if (sortOption === 'priceLowToHigh') {
-        sortQuery = { price: 1 };
-      } else if (sortOption === 'priceHighToLow') {
-        sortQuery = { price: -1 };
-      } else if (sortOption === 'newestFirst') {
-        sortQuery = { product_creation_date: -1 };
+      const { sort, brandname, category, minPrice, maxPrice } = req.query;
+  
+      let filterQuery = {};
+  
+      // Apply brand filter if provided
+      if (brandname) {
+          filterQuery.brandname = brandname;
       }
-
-      const cursor = productCollection.find().sort(sortQuery);
+  
+      // Apply category filter if provided
+      if (category) {
+          filterQuery.category = category;
+      }
+  
+      // Apply price range filter if provided
+      if (minPrice || maxPrice) {
+          filterQuery.price = {};
+          if (minPrice) {
+              filterQuery.price.$gte = parseFloat(minPrice);
+          }
+          if (maxPrice) {
+              filterQuery.price.$lte = parseFloat(maxPrice);
+          }
+      }
+  
+      // Sort options
+      let sortQuery = {};
+      if (sort === 'priceLowToHigh') {
+          sortQuery = { price: 1 };
+      } else if (sort === 'priceHighToLow') {
+          sortQuery = { price: -1 };
+      } else if (sort === 'newestFirst') {
+          sortQuery = { product_creation_date: -1 };
+      }
+  
+      const cursor = productCollection.find(filterQuery).sort(sortQuery);
       const result = await cursor.toArray();
       res.send(result);
-    });
+  });
+  
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
