@@ -4,7 +4,7 @@ This is  built using Node.js, Express.js, and MongoDB.
 ## Project Setup
 
 1. Clone the repository:
-  git clone https://github.com/your-username/jobtask-backend.git
+  git clone https://github.com/indraghosh02/product-server/tree/main
 2. Navigate to the project directory:
   cd jobtask-backend
 3. Install the dependencies:
